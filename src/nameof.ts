@@ -1,9 +1,7 @@
-/**
- * Converts a lambda function to a string in order to parse the dot-accessed property on the parameter type.
- * @param selector Lambda function representing selection of a property on the parameter type, ex. x => x.prop
- */
-export function nameof<T extends Object>(selector: (obj: T) => any): string {
-    let fnStr: string = selector.toString();
+export function nameof<T extends Object>(nameFunction: (obj: T) => any | { new (...params: any[]): T }): string {
+    let fnStr: string = nameFunction.toString();
+
+    // Property accessor function.
     let dotIndex: number = fnStr.indexOf(".");
     if (dotIndex > -1) {
         // ES5
@@ -13,25 +11,20 @@ export function nameof<T extends Object>(selector: (obj: T) => any): string {
         // or
         // "function(x) {return x.prop}"
         if (fnStr.indexOf("{") > -1) {
-            let endingIndex = -1;
-            let endsWithSemicolon = fnStr.lastIndexOf(";");
-            let endsWithSpace = fnStr.lastIndexOf(" }");
-            let endsWithBrace = fnStr.lastIndexOf("}");
-
+            let endsWithSemicolon: number = fnStr.lastIndexOf(";");
             if (endsWithSemicolon > -1) {
-                endingIndex = endsWithSemicolon;
+                return fnStr.substring(dotIndex + 1, endsWithSemicolon);
             }
-            else if (endsWithSpace > -1) {
-                endingIndex = endsWithSpace;
+            
+            let endsWithSpace: number = fnStr.lastIndexOf(" }");
+            if (endsWithSpace > -1) {
+                return fnStr.substring(dotIndex + 1, endsWithSpace);
             }
-            else if (endsWithBrace > -1) {
-                endingIndex = endsWithBrace;
+            
+            let endsWithBrace: number = fnStr.lastIndexOf("}");
+            if (endsWithBrace > -1) {
+                return fnStr.substring(dotIndex + 1, endsWithBrace);
             }
-            else {
-                throw new Error("ts-simple-nameof: Invalid function syntax.");
-            }
-
-            return fnStr.substring(dotIndex + 1, endingIndex);
         }
         // ES6
         // "(x) => x.prop"
@@ -39,7 +32,34 @@ export function nameof<T extends Object>(selector: (obj: T) => any): string {
             return fnStr.substr(dotIndex + 1);
         }
     }
-    else {
-        throw new Error("ts-simple-nameof: Invalid property accessor function.");
+
+    // Class name (es5).
+    // function MyClass(...) { ... }
+    let functionString: string = "function ";
+    let functionIndex: number = fnStr.indexOf(functionString);
+    if (functionIndex === 0) {
+        let parenIndex: number = fnStr.indexOf("(");
+        if (parenIndex > -1) {
+            return fnStr.substring(functionString.length, parenIndex);
+        }
     }
+
+    // Class name (es6).
+    // class MyClass { ... }
+    let classString: string = "class ";
+    let classIndex: number = fnStr.indexOf(classString);
+    if (classIndex === 0) {
+        let notMinified: number = fnStr.indexOf(" {");
+        if (notMinified > -1) {
+            return fnStr.substring(classString.length, notMinified);
+        }
+
+        let minified: number = fnStr.indexOf("{");
+        if (minified > -1) {
+            return fnStr.substring(classString.length, minified);
+        }
+    }
+
+    // Invalid function.
+    throw new Error("ts-simple-nameof: Invalid function syntax.");
 }
