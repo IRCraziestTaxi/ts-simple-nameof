@@ -1,10 +1,13 @@
 {
   "name": "ts-simple-nameof",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Parses a class name or a dot-separated property name from a lambda expression and provides some level of type safety using type parameters.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Tests may be run via scripts test:es5 and test:es6 individually.\"",
+    "test:es5": "jasmine-ts \"./tsconfig.spec.es5.json\" --config=\"./test/jasmine.json\"",
+    "test:es6": "jasmine-ts \"./tsconfig.spec.es6.json\" --config=\"./test/jasmine.json\"",
+    "tsc": "node_modules/.bin/tsc --project \"./tsconfig.build.json\""
   },
   "repository": {
     "type": "git",
@@ -21,10 +24,18 @@
   },
   "homepage": "https://github.com/IRCraziestTaxi/ts-simple-nameof#readme",
   "files": [
-    "*.json",
+    "package.json",
     "index.js",
     "index.d.ts",
     "src/**/*.js",
     "src/**/*.d.ts"
-  ]
+  ],
+  "devDependencies": {
+    "@types/jasmine": "3.4.0",
+    "jasmine": "3.4.0",
+    "jasmine-ts": "0.3.0",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
+    "typescript": "3.6.3"
+  }
 }
