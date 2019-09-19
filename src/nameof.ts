@@ -1,65 +1,60 @@
-export function nameof<T extends Object>(nameFunction: (obj: T) => any | { new (...params: any[]): T }): string {
-    let fnStr: string = nameFunction.toString();
+function cleanseAssertionOperators(parsedName: string): string {
+    return parsedName.replace(/[?!]/g, "");
+}
 
-    // Property accessor function.
-    let dotIndex: number = fnStr.indexOf(".");
-    if (dotIndex > -1) {
-        // ES5
-        // "function(x) { return x.prop; }"
-        // or
-        // "function(x) { return x.prop }"
-        // or
-        // "function(x) {return x.prop}"
-        if (fnStr.indexOf("{") > -1) {
-            let endsWithSemicolon: number = fnStr.lastIndexOf(";");
-            if (endsWithSemicolon > -1) {
-                return fnStr.substring(dotIndex + 1, endsWithSemicolon);
-            }
-            
-            let endsWithSpace: number = fnStr.lastIndexOf(" }");
-            if (endsWithSpace > -1) {
-                return fnStr.substring(dotIndex + 1, endsWithSpace);
-            }
-            
-            let endsWithBrace: number = fnStr.lastIndexOf("}");
-            if (endsWithBrace > -1) {
-                return fnStr.substring(dotIndex + 1, endsWithBrace);
-            }
-        }
-        // ES6
-        // "(x) => x.prop"
-        else {
-            return fnStr.substr(dotIndex + 1);
-        }
+export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new(...params: any[]): T }): string {
+    const fnStr = nameFunction.toString();
+
+    // ES6 class name:
+    // "class ClassName { ..."
+    if (
+        fnStr.startsWith("class ")
+        // Theoretically could, for some ill-advised reason, be "class => class.prop".
+        && !fnStr.startsWith("class =>")
+    ) {
+        return cleanseAssertionOperators(
+            fnStr.substring(
+                "class ".length,
+                fnStr.indexOf(" {")
+            )
+        );
     }
 
-    // Class name (es5).
-    // function MyClass(...) { ... }
-    let functionString: string = "function ";
-    let functionIndex: number = fnStr.indexOf(functionString);
-    if (functionIndex === 0) {
-        let parenIndex: number = fnStr.indexOf("(");
-        if (parenIndex > -1) {
-            return fnStr.substring(functionString.length, parenIndex);
-        }
+    // ES6 prop selector:
+    // "x => x.prop"
+    if (fnStr.includes("=>")) {
+        return cleanseAssertionOperators(
+            fnStr.substring(
+                fnStr.indexOf(".") + 1
+            )
+        );
     }
 
-    // Class name (es6).
-    // class MyClass { ... }
-    let classString: string = "class ";
-    let classIndex: number = fnStr.indexOf(classString);
-    if (classIndex === 0) {
-        let notMinified: number = fnStr.indexOf(" {");
-        if (notMinified > -1) {
-            return fnStr.substring(classString.length, notMinified);
-        }
+    // ES5 prop selector:
+    // "function (x) { return x.prop; }"
+    if (fnStr.startsWith("function (")) {
+        const firstDotIndex = fnStr.indexOf(".");
+        const semicolonIndex = fnStr.indexOf(";");
 
-        let minified: number = fnStr.indexOf("{");
-        if (minified > -1) {
-            return fnStr.substring(classString.length, minified);
-        }
+        return cleanseAssertionOperators(
+            fnStr.substring(
+                firstDotIndex + 1,
+                semicolonIndex
+            )
+        );
+    }
+
+    // ES5 class name:
+    // "function ClassName() { ..."
+    if (fnStr.startsWith("function ")) {
+        return cleanseAssertionOperators(
+            fnStr.substring(
+                "function ".length,
+                fnStr.indexOf("(")
+            )
+        );
     }
 
     // Invalid function.
-    throw new Error("ts-simple-nameof: Invalid function syntax.");
+    throw new Error("ts-simple-nameof: Invalid function.");
 }
