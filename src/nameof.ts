@@ -32,7 +32,7 @@ export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new
 
     // ES5 prop selector:
     // "function (x) { return x.prop; }"
-    if (fnStr.startsWith("function (")) {
+    if (fnStr.startsWith("function (") || fnStr.startsWith("function (")) {
         const firstDotIndex = fnStr.indexOf(".");
         const semicolonIndex = fnStr.indexOf(";");
 
