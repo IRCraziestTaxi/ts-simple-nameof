@@ -32,17 +32,11 @@ export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new
 
     // ES5 prop selector:
     // "function (x) { return x.prop; }"
-    if ((new RegExp(/function(\s)?\(/, "g")).test(fnStr)) {
-        const firstDotIndex = fnStr.indexOf(".");
-        const semicolonIndex = fnStr.indexOf(";");
-
-        return cleanseAssertionOperators(
-            fnStr.substring(
-                firstDotIndex + 1,
-                semicolonIndex
-            )
-        );
-    }
+    // webpack production build excludes the spaces and optional trailing semicolon:
+    //   "function(x){return x.prop}"
+    // FYI - during local dev testing i observed carriage returns after the curly brackets as well
+    var ES5match = fnStr.match(/function\s*\(\w\)\s*\{[\r\n\s]*return\s*\w+\.(\w+)/i);
+    if (ES5match) { return ES5match[1]; }
 
     // ES5 class name:
     // "function ClassName() { ..."
