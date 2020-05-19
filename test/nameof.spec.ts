@@ -9,11 +9,11 @@ class Parent {
         this._prop = "";
     }
 
-    public get prop(): string {
+    public get parentProp(): string {
         return this._prop;
     }
 
-    public set prop(value: string) {
+    public set parentProp(value: string) {
         this._prop = value;
     }
 
@@ -22,6 +22,7 @@ class Parent {
 }
 
 class Child {
+    public grandchild: Grandchild;
     public parent: Parent;
 
     private _prop: string;
@@ -30,11 +31,32 @@ class Child {
         this._prop = "";
     }
 
-    public get prop(): string {
+    public get childProp(): string {
         return this._prop;
     }
 
-    public set prop(value: string) {
+    public set childProp(value: string) {
+        this._prop = value;
+    }
+
+    public func(callback: (...args: any[]) => void): void {
+    }
+}
+
+class Grandchild {
+    public parentChild: Child;
+
+    private _prop: string;
+
+    public constructor() {
+        this._prop = "";
+    }
+
+    public get grandchildProp(): string {
+        return this._prop;
+    }
+
+    public set grandchildProp(value: string) {
         this._prop = value;
     }
 
@@ -44,24 +66,24 @@ class Child {
 
 describe("nameof", () => {
     it("parses prop", () => {
-        const parsedName = nameof<Parent>(p => p.prop);
+        const parsedName = nameof<Parent>(p => p.parentProp);
 
         expect(parsedName)
-            .toBe("prop");
+            .toBe("parentProp");
     });
 
     it("parses multiple props", () => {
-        const parsedName = nameof<Parent>(p => p.child.prop);
+        const parsedName = nameof<Parent>(p => p.child.childProp);
 
         expect(parsedName)
-            .toBe("child.prop");
+            .toBe("child.childProp");
     });
 
     it("parses props with assertion operators", () => {
-        const parsedName = nameof<Parent>(p => p.child!.prop);
+        const parsedName = nameof<Parent>(p => p.child!.childProp);
 
         expect(parsedName)
-            .toBe("child.prop");
+            .toBe("child.childProp");
     });
 
     it("parses class name", () => {
@@ -69,5 +91,12 @@ describe("nameof", () => {
 
         expect(parsedName)
             .toBe("Parent");
+    });
+
+    it("parses last prop with lastProp option", () => {
+        const parsedName = nameof<Parent>(p => p.child.grandchild.grandchildProp, { lastProp: true });
+
+        expect(parsedName)
+            .toBe("grandchildProp");
     });
 });

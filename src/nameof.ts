@@ -1,8 +1,10 @@
+import { NameofOptions } from "./interfaces/nameof-options.interface";
+
 function cleanseAssertionOperators(parsedName: string): string {
     return parsedName.replace(/[?!]/g, "");
 }
 
-export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new(...params: any[]): T }): string {
+export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new(...params: any[]): T }, options?: NameofOptions): string {
     const fnStr = nameFunction.toString();
 
     // ES6 class name:
@@ -32,16 +34,18 @@ export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new
 
     // ES5 prop selector:
     // "function (x) { return x.prop; }"
-    if ((new RegExp(/function(\s)?\(/, "g")).test(fnStr)) {
-        const firstDotIndex = fnStr.indexOf(".");
-        const semicolonIndex = fnStr.indexOf(";");
+    // webpack production build excludes the spaces and optional trailing semicolon:
+    //   "function(x){return x.prop}"
+    // FYI - during local dev testing i observed carriage returns after the curly brackets as well
+    // Note by maintainer: See https://github.com/IRCraziestTaxi/ts-simple-nameof/pull/13#issuecomment-567171802 for explanation of this regex.
+    const matchRegex = /function\s*\(\w+\)\s*\{[\r\n\s]*return\s+\w+\.((\w+\.)*(\w+))/i;
 
-        return cleanseAssertionOperators(
-            fnStr.substring(
-                firstDotIndex + 1,
-                semicolonIndex
-            )
-        );
+    const es5Match = fnStr.match(matchRegex);
+
+    if (es5Match) {
+        return (options && options.lastProp)
+            ? es5Match[3]
+            : es5Match[1];
     }
 
     // ES5 class name:
