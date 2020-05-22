@@ -35,7 +35,7 @@
     "jasmine": "3.5.0",
     "jasmine-ts": "0.3.0",
     "ts-node": "8.4.1",
-    "tslint": "5.20.0",
+    "tslint": "6.1.2",
     "typescript": "3.9.3"
   }
 }
