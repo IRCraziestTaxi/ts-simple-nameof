@@ -38,7 +38,7 @@ export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new
     //   "function(x){return x.prop}"
     // FYI - during local dev testing i observed carriage returns after the curly brackets as well
     // Note by maintainer: See https://github.com/IRCraziestTaxi/ts-simple-nameof/pull/13#issuecomment-567171802 for explanation of this regex.
-    const matchRegex = /function\s*\(\w+\)\s*\{[\r\n\s]*return\s+\w+\.((\w+\.)*(\w+))/i;
+    const matchRegex = /function\s*\([\w+]?\)\s*\{[\r\n\s]*return\s+\w+\.((\w+\.)*(\w+))/i;
 
     const es5Match = fnStr.match(matchRegex);
 
