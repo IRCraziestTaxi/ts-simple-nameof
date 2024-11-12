@@ -14,10 +14,13 @@ export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new
         // Theoretically could, for some ill-advised reason, be "class => class.prop".
         && !fnStr.startsWith("class =>")
     ) {
+        // check whether ClassName extends a base class
+        const terminator = fnStr.indexOf(" extends") > -1 ? fnStr.indexOf(" extends") : fnStr.indexOf(" {");
+
         return cleanseAssertionOperators(
             fnStr.substring(
                 "class ".length,
-                fnStr.indexOf(" {")
+                terminator
             )
         );
     }
