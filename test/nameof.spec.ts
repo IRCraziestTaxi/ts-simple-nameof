@@ -64,6 +64,10 @@ class Grandchild {
     }
 }
 
+class BaseClass {}
+
+class DerivedClass extends BaseClass {}
+
 describe("nameof", () => {
     it("parses prop", () => {
         const parsedName = nameof<Parent>(p => p.parentProp);
@@ -98,5 +102,12 @@ describe("nameof", () => {
 
         expect(parsedName)
             .toBe("grandchildProp");
+    });
+
+    it("parses derived class name", () => {
+        const parsedName = nameof(DerivedClass);
+
+        expect(parsedName)
+            .toBe("DerivedClass");
     });
 });

@@ -30,7 +30,9 @@ export function nameof<T extends Object>(nameFunction: ((obj: T) => any) | { new
     if (fnStr.includes("=>")) {
         return cleanseAssertionOperators(
             fnStr.substring(
-                fnStr.indexOf(".") + 1
+                (options && options.lastProp)
+                    ? fnStr.lastIndexOf(".") + 1
+                    : fnStr.indexOf(".") + 1
             )
         );
     }
