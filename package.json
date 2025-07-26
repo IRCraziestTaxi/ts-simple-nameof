@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Tests may be run via scripts test:es5 and test:es6 individually.\"",
-    "test:es5": "jasmine-ts \"./tsconfig.spec.es5.json\" --config=\"./test/jasmine.json\"",
-    "test:es6": "jasmine-ts \"./tsconfig.spec.es6.json\" --config=\"./test/jasmine.json\"",
+    "test:es5": "jasmine-ts --project=\"./tsconfig.spec.es5.json\" --config=\"./test/jasmine.json\"",
+    "test:es6": "jasmine-ts --project=\"./tsconfig.spec.es6.json\" --config=\"./test/jasmine.json\"",
     "tsc": "node_modules/.bin/tsc --project \"./tsconfig.build.json\""
   },
   "repository": {
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/jasmine": "3.6.9",
     "jasmine": "3.7.0",
-    "jasmine-ts": "0.3.0",
+    "jasmine-ts": "^0.3.3",
     "ts-node": "^8.10.2",
     "tslint": "6.1.3",
     "typescript": "4.2.3"
